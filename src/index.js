@@ -1,4 +1,3 @@
-const Client = require('./dist/client')
+import Client from './client/reactotron/client'
 
-module.exports = Client
-
+export default Client
