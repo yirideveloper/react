@@ -3,8 +3,7 @@ import blessed from 'blessed'
 const screen = blessed.screen({
   smartCSR: true,
   title: 'reactotron',
-  dockBorders: false,
-  fullUnicode: true
+  dockBorders: false
 })
 
 const promptBox = blessed.prompt({
@@ -21,6 +20,19 @@ const promptBox = blessed.prompt({
   hidden: true
 })
 
+const messageBox = blessed.message({
+  parent: screen,
+  top: 'center',
+  left: 'center',
+  height: 'shrink',
+  width: 'shrink',
+  border: 'line',
+  label: ' {blue-fg}Message{/} ',
+  tags: true,
+  keys: true,
+  mouse: true,
+  hidden: true
+})
 
 const logBox = blessed.log({
   parent: screen,
@@ -35,7 +47,7 @@ const logBox = blessed.log({
   vi: true,
   mouse: true,
   scrollback: 400,
-  label: ` {white-fg} Log {/} `,
+  label: ' {white-fg}Log{/} ',
   scrollbar: {
     ch: ' ',
     inverse: true
@@ -154,6 +166,7 @@ export default {
   screen,
   connectionBox,
   promptBox,
+  messageBox,
   logBox,
   reduxActionBox,
   reduxWatchBox,
