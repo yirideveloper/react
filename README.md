@@ -185,7 +185,7 @@ npm start
 ```
 cd examples/ReactNativeExample
 npm install
-cp ../../src/client/client.js .
+cp ../../src/client.js .
 react-native run-ios
 ```
 
