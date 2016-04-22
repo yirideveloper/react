@@ -1,11 +1,8 @@
 // --- Begin Awkward Hackzorz ---
 
-const R = require('ramda')
-
 // Then we set a userAgent so socket.io works.
 if (!window.navigator || !window.navigator.userAgent) {
-  const newNav = R.merge(window.navigator, {userAgent: 'reactotron'})
-  window = R.merge(window, {navigator: newNav})
+  window = Object.assign(window, {navigator: {userAgent: 'reactotron'}})
 }
 
 // Finally, we load socket.io. This has to be done as a require to preserve
@@ -14,6 +11,7 @@ const io = require('socket.io-client/socket.io')
 
 // --- End Awkward Hackzorz ---
 
+const R = require('ramda')
 const RS = require('ramdasauce')
 const performanceNow = require('fbjs/lib/performanceNow')
 
