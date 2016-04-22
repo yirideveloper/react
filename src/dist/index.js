@@ -24,10 +24,6 @@ var _blessed = require('blessed');
 
 var _blessed2 = _interopRequireDefault(_blessed);
 
-var _gemoji = require('gemoji');
-
-var _gemoji2 = _interopRequireDefault(_gemoji);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -697,7 +693,7 @@ var COMMAND$25 = 'menu.main';
 var process$25 = function process$25(context, action) {
   var menu = {
     name: 'main',
-    commands: [{ key: 'r', name: 'redux', commands: [{ type: 'menu.redux' }] }, { key: 'c', name: 'clear', commands: [] }, { key: '-', name: 'score', commands: [] }, { key: '.', name: 'repeat', commands: [] },
+    commands: [{ key: 'r', name: 'redux', commands: [{ type: 'menu.redux' }] },
     // {key: 'd', name: 'dev menu', commands: [{type: 'menu.devMenu'}]},
     { key: 'q', name: 'quit', commands: [{ type: 'program.die' }] }]
   };
@@ -789,8 +785,7 @@ var commands = [reduxDispatch, reduxValueRequest, reduxKeyRequest, reduxValueRes
 var screen = _blessed2.default.screen({
   smartCSR: true,
   title: 'reactotron',
-  dockBorders: false,
-  fullUnicode: true
+  dockBorders: false
 });
 
 var promptBox = _blessed2.default.prompt({
@@ -820,7 +815,7 @@ var logBox = _blessed2.default.log({
   vi: true,
   mouse: true,
   scrollback: 400,
-  label: ' {white-fg} Log {/} ',
+  label: ' {white-fg}Log{/} ',
   scrollbar: {
     ch: ' ',
     inverse: true
@@ -949,17 +944,6 @@ var ui = {
   ONLINE: ONLINE
 };
 
-// A way to add extra spacing for emoji characters. As it
-// turns out, the emojis are double-wide code points, but
-// the terminal renders it as a single slot.  I literally
-// understand nothing anymore.  Seems to work great tho!
-var keys = _ramda2.default.keys(_gemoji2.default.unicode);
-var emojiPattern = '(' + keys.join('|') + ')+';
-var emojiRegex = new RegExp(emojiPattern, 'g');
-var addSpaceForEmoji = function addSpaceForEmoji(str) {
-  return str.replace(emojiRegex, '$1 ');
-};
-
 var PORT = 3334;
 var io = (0, _socket2.default)(PORT);
 var router = publicInterface.createRouter();
@@ -978,7 +962,7 @@ io.on('connection', function (socket) {
   context.post({ type: 'redux.subscribe.request' });
   ui.screen.render();
   socket.on('command', function (data) {
-    var action = JSON.parse(addSpaceForEmoji(data));
+    var action = JSON.parse(data);
     context.post(action);
     ui.screen.render();
   });
@@ -1005,7 +989,7 @@ ui.screen.key('-', function () {
 });
 
 // del to clear
-ui.screen.key(['delete', 'backspace', 'c'], function () {
+ui.screen.key(['delete', 'backspace'], function () {
   return context.post({ type: 'content.clear' });
 });
 
