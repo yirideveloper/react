@@ -6,7 +6,8 @@ import getCleanedState from './state-cleaner'
 export default (subscriptions, state) => {
   const cleanedState = getCleanedState(state)
 
-  return R.pipe(
+  R.pipe(
+    R.map(R.when(R.isNil, R.always(''))),
     R.filter(RS.endsWith('.*')),
     R.map((key) => {
       const keyMinusWildcard = R.slice(0, -2, key)
@@ -19,11 +20,14 @@ export default (subscriptions, state) => {
       }
       return []
     }),
-    R.concat(subscriptions),
+    R.concat(R.map(R.when(R.isNil, R.always('')), subscriptions)),
     R.flatten,
     R.reject(RS.endsWith('.*')),
     R.uniq,
     R.sortBy(R.identity),
-    R.map(key => ({ path: key, value: RS.dotPath(key, cleanedState) }))
+    R.map(key => ({
+      path: key,
+      value: RS.isNilOrEmpty(key) ? cleanedState : RS.dotPath(key, cleanedState)
+    }))
   )(subscriptions)
 }
