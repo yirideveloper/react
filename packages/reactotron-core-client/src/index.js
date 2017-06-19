@@ -9,6 +9,8 @@ import clear from './plugins/clear'
 import serialize from './serialize'
 import { start } from './stopwatch'
 
+export { start } from './stopwatch'
+
 export const CorePlugins = [
   image(),
   logger(),
@@ -19,7 +21,7 @@ export const CorePlugins = [
 ]
 
 const DEFAULTS = {
-  createSocket: null, // a function supplied by the upstream libs to create a websocket client
+  io: null, // the socket.io function to create a socket
   host: 'localhost', // the server to connect (required)
   port: 9090, // the port to connect (required)
   name: 'reactotron-core-client', // some human-friendly session name
@@ -28,7 +30,13 @@ const DEFAULTS = {
   safeRecursion: true, // when on, it ensures objects are safe for transport (at the cost of CPU)
   onCommand: cmd => null, // the function called when we receive a command
   onConnect: () => null, // fires when we connect
-  onDisconnect: () => null // fires when we disconnect
+  onDisconnect: () => null, // fires when we disconnect
+  socketIoProperties: {
+    reconnection: true,
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5
+  } // socketIO settings
 }
 
 // these are not for you.
@@ -44,8 +52,6 @@ export class Client {
   connected = false
   socket = null
   plugins = []
-  sendQueue = []
-  isReady = false
 
   startTimer = () => start()
 
@@ -76,63 +82,46 @@ export class Client {
    */
   connect () {
     this.connected = true
-    const { createSocket, secure, host, port, name, userAgent, environment, reactotronVersion } = this.options
+    const { io, secure, host, port, name, userAgent, environment, reactotronVersion, socketIoProperties } = this.options
     const { onCommand, onConnect, onDisconnect } = this.options
 
-    // establish a connection to the server
+    // establish a socket.io connection to the server
     const protocol = secure ? 'wss' : 'ws'
-    const socket = createSocket(`${protocol}://${host}:${port}`)
+    const socket = io(`${protocol}://${host}:${port}`, {
+      jsonp: false,
+      transports: ['websocket', 'polling'],
+      ...socketIoProperties
+    })
 
     // fires when we talk to the server
-    const onOpen = () => {
+    socket.on('connect', () => {
       // fire our optional onConnect handler
       onConnect && onConnect()
 
       // trigger our plugins onConnect
       R.forEach(plugin => plugin.onConnect && plugin.onConnect(), this.plugins)
-      this.isReady = true
+
       // introduce ourselves
       this.send('client.intro', { host, port, name, userAgent, reactotronVersion, environment })
-
-      // flush the send queue
-      while (!R.isEmpty(this.sendQueue)) {
-        const h = R.head(this.sendQueue)
-        this.sendQueue = R.tail(this.sendQueue)
-        this.socket.send(h)
-      }
-    }
+    })
 
     // fires when we disconnect
-    const onClose = () => {
-      this.isReady = false
+    socket.on('disconnect', () => {
       // trigger our disconnect handler
       onDisconnect && onDisconnect()
 
       // as well as the plugin's onDisconnect
       R.forEach(plugin => plugin.onDisconnect && plugin.onDisconnect(), this.plugins)
-    }
+    })
 
     // fires when we receive a command, just forward it off
-    const onMessage = data => {
-      const command = JSON.parse(data)
+    socket.on('command', command => {
       // trigger our own command handler
       onCommand && onCommand(command)
 
       // trigger our plugins onCommand
       R.forEach(plugin => plugin.onCommand && plugin.onCommand(command), this.plugins)
-    }
-
-    // this is ws style from require('ws') on node js
-    if (socket.on) {
-      socket.on('open', onOpen)
-      socket.on('close', onClose)
-      socket.on('message', onMessage)
-    } else {
-      // this is a browser
-      socket.onopen = onOpen
-      socket.onclose = onClose
-      socket.onmessage = evt => onMessage(evt.data)
-    }
+    })
 
     // assign the socket to the instance
     this.socket = socket
@@ -147,22 +136,22 @@ export class Client {
     // jet if we don't have a socket
     if (!this.socket) return
 
-    const fullMessage = {
+    // Do a cycle of serialization -> deserialization to ensure
+    // circular deps are weeded out.
+    //
+    // NOTE(steve): socket.io is going away shortly, so there will
+    // be no need to deserialize as we'll be sending text over the
+    // wire.
+    const actualPayload = this.options.safeRecursion
+      ? JSON.parse(serialize(payload))
+      : payload
+
+    // send this command
+    this.socket.emit('command', {
       type,
-      payload: payload,
+      payload: actualPayload,
       important: !!important
-    }
-
-    const serializedMessage = serialize(fullMessage)
-
-    if (this.isReady) {
-      // send this command
-      this.socket.send(serializedMessage)
-    } else {
-      // queue it up until we can connect
-      this.sendQueue.push(serializedMessage)
-    }
-
+    })
   }
 
   /**

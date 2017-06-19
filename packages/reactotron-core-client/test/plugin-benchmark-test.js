@@ -1,15 +1,13 @@
 import test from 'ava'
 import { createClient, CorePlugins } from '../src'
+import socketClient from 'socket.io-client'
 import plugin from '../src/plugins/benchmark'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
 
 // a promise based delay that's not accurate at all
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 test('adds benchmarks to a report', async t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let commandType
   let report
 
@@ -27,9 +25,9 @@ test('adds benchmarks to a report', async t => {
 
   // use the benchmark feature
   const bench = client.benchmark('a')
-  await delay(500)
+  await delay(50)
   bench.step('b')
-  await delay(500)
+  await delay(50)
   bench.stop('c')
 
   // checkout our results
