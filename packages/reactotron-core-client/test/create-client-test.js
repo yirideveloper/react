@@ -1,10 +1,8 @@
 import test from 'ava'
 import { createClient } from '../src'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
+import io from './_fake-io'
 
 test('returns a client', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io })
   t.truthy(client)
 })

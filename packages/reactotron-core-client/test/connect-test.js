@@ -1,58 +1,27 @@
 import test from 'ava'
 import { createClient } from '../src'
-import { createServer } from 'http'
-import WebSocket from 'ws'
-
-let server
-let wss
-let port
-test.cb.beforeEach(t => {
-  server = createServer()
-  wss = new WebSocket.Server({ server })
-  server.listen(() => {
-    port = server.address().port
-    t.end()
-  })
-})
-
-test.afterEach.always(() => {
-  server.close()
-})
-
-const createSocket = path => new WebSocket(path)
+import io from './_fake-io'
 
 test('has a connect method', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io })
   t.truthy(client.connect)
 })
 
-test.cb('connect returns itself', t => {
-  const client = createClient({ createSocket, port })
+test('connect returns itself', t => {
+  const client = createClient({ io })
   t.is(client.connect(), client)
-  wss.on('connection', () => {
-    server.close()
-    t.end()
-  })
 })
 
 test('we start off unconnected', t => {
-  t.false(createClient({ createSocket }).connected)
+  t.false(createClient({ io }).connected)
 })
 
-test.cb('connecting shows us a connected', t => {
-  t.true(createClient({ createSocket, port }).connect().connected)
-  wss.on('connection', () => {
-    server.close()
-    t.end()
-  })
+test('connecting shows us a connected', t => {
+  t.true(createClient({ io }).connect().connected)
 })
 
-test.cb('builds a socket', t => {
-  const client = createClient({ createSocket, port })
+test('builds a socket', t => {
+  const client = createClient({ io })
   client.connect()
   t.truthy(client.socket)
-  wss.on('connection', () => {
-    server.close()
-    t.end()
-  })
 })
