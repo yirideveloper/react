@@ -1,14 +1,13 @@
-import typescript from 'rollup-plugin-typescript2'
-import commonjs from 'rollup-plugin-commonjs'
+import babel from 'rollup-plugin-babel'
 
 export default {
-  entry: 'src/index.ts',
+  entry: 'src/index.js',
   format: 'cjs',
   plugins: [
-    typescript(),
-    commonjs({
-      include: 'node_modules/**',
-      ignoreGlobals: false
+    babel({
+      babelrc: false,
+      presets: ['es2015-rollup', 'stage-1'],
+      plugins: ['transform-decorators-legacy']
     })
   ],
   dest: 'dist/index.js',
@@ -17,6 +16,6 @@ export default {
     'ramda',
     'mobx',
     'ramdasauce',
-    'ws'
+    'socket.io'
   ]
 }

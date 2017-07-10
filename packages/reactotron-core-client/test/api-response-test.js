@@ -1,12 +1,10 @@
 import test from 'ava'
 import { createClient, CorePlugins } from '../src'
+import socketClient from 'socket.io-client'
 import plugin from '../src/plugins/state-responses'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
 
 test('stateActionComplete', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let type
   let name
   let action
@@ -25,7 +23,7 @@ test('stateActionComplete', t => {
 })
 
 test('stateValuesResponse', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let type
   let path
   let value
@@ -47,7 +45,7 @@ test('stateValuesResponse', t => {
 })
 
 test('stateKeysResponse', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let type
   let path
   let keys
@@ -69,7 +67,7 @@ test('stateKeysResponse', t => {
 })
 
 test('stateValuesChange', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let type
   let changes
   client.send = (x, y) => {
@@ -85,7 +83,7 @@ test('stateValuesChange', t => {
 })
 
 test('stateBackupResponse', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   let type
   let state
   client.send = (x, y) => {
