@@ -53,7 +53,6 @@ export default options => reactotron => {
   // here's how to swizzle
   function trackGlobalErrors () {
     if (isSwizzled) return
-    if (!NativeModules.ExceptionsManager) return
     swizzled = NativeModules.ExceptionsManager.updateExceptionMessage
     NativeModules.ExceptionsManager.updateExceptionMessage = reactotronExceptionHijacker
     isSwizzled = true
@@ -62,7 +61,6 @@ export default options => reactotron => {
   // restore the original
   function untrackGlobalErrors () {
     if (!swizzled) return
-    if (!NativeModules.ExceptionsManager) return
     NativeModules.ExceptionsManager.updateExceptionMessage = swizzled
     isSwizzled = false
   }
