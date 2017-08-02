@@ -1,11 +1,9 @@
 import test from 'ava'
 import { createClient } from '../src'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
+import io from './_fake-io'
 
 test('has a startTimer function', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io })
   t.is(typeof client.startTimer, 'function')
   const elapsed = client.startTimer()
   t.is(typeof elapsed, 'function')

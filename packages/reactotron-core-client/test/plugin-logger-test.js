@@ -1,12 +1,10 @@
 import test from 'ava'
 import { createClient, CorePlugins } from '../src'
+import socketClient from 'socket.io-client'
 import plugin from '../src/plugins/logger'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
 
 test('the 4 functions send the right data', t => {
-  const client = createClient({ createSocket })
+  const client = createClient({ io: socketClient })
   const results = []
   client.send = (type, payload) => { results.push({type, payload}) }
   client.use(plugin())
