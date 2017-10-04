@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import AppStyles from '../Theme/AppStyles'
 import Colors from '../Theme/Colors'
@@ -30,29 +30,31 @@ const Styles = {
   }
 }
 
-const SidebarButton = props => {
-  const { icon, isActive, onClick, hideTopBorder } = props
-  const Icon = require(`react-icons/lib/md/${icon}`)
-  const containerStyles = mergeAll([
-    Styles.container,
-    isActive ? Styles.containerActive : {},
-    hideTopBorder ? Styles.containerTop : {}
-  ])
+class SidebarButton extends Component {
+  static propTypes = {
+    icon: PropTypes.string.isRequired,
+    text: PropTypes.string,
+    isActive: PropTypes.bool.isRequired,
+    onClick: PropTypes.func.isRequired,
+    hideTopBorder: PropTypes.bool
+  }
 
-  return (
-    <div style={containerStyles} onClick={onClick}>
-      <Icon size={Styles.iconSize} />
-      <div style={Styles.text}>{this.props.text}</div>
-    </div>
-  )
-}
+  render () {
+    const { icon, isActive, onClick, hideTopBorder } = this.props
+    const Icon = require(`react-icons/lib/md/${icon}`)
+    const containerStyles = mergeAll([
+      Styles.container,
+      isActive ? Styles.containerActive : {},
+      hideTopBorder ? Styles.containerTop : {}
+    ])
 
-SidebarButton.propTypes = {
-  icon: PropTypes.string.isRequired,
-  text: PropTypes.string,
-  isActive: PropTypes.bool.isRequired,
-  onClick: PropTypes.func.isRequired,
-  hideTopBorder: PropTypes.bool
+    return (
+      <div style={containerStyles} onClick={onClick}>
+        <Icon size={Styles.iconSize} />
+        <div style={Styles.text}>{this.props.text}</div>
+      </div>
+    )
+  }
 }
 
 export default SidebarButton
