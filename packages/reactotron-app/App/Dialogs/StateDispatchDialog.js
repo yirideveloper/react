@@ -91,16 +91,13 @@ class StateDispatchDialog extends Component {
     session.ui.actionToDispatch = e.target.value
   }
 
-  componentDidUpdate() {
-      const field = ReactDOM.findDOMNode(this.field)
-
-      field && field.focus()
-  }
-
   render () {
     const { ui } = this.props.session
-    if (!ui.showStateDispatchDialog) return null
+    const open = ui.showStateDispatchDialog
+    if (!open) return null
 
+    // need to find a less hacky way of doing this
+    setTimeout(() => ReactDOM.findDOMNode(this.refs.dispatchField).focus(), 1)
     return (
       <ModalPortal>
         <ModalBackground onClose={ui.closeStateDispatchDialog}>
@@ -118,7 +115,7 @@ class StateDispatchDialog extends Component {
                   placeholder={INPUT_PLACEHOLDER}
                   style={Styles.dispatchField}
                   type='text'
-                  ref={node => (this.field = node)}
+                  ref='dispatchField'
                   value={ui.actionToDispatch}
                   onKeyPress={this.handleKeyPress}
                   onChange={this.handleChange}
