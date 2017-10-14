@@ -2,8 +2,8 @@ import { merge, length, find, propEq, without, contains, forEach, pluck, reject 
 import Commands from './commands'
 import validate from './validation'
 import { observable, computed, asFlat } from 'mobx'
-import socketIO from 'socket.io'
 import { repair } from './repairSerialization'
+import WebSocket from 'ws'
 
 const DEFAULTS = {
   port: 9090, // the port to live (required)
@@ -11,7 +11,7 @@ const DEFAULTS = {
   onStart: () => null, // handles inbound commands
   onStop: () => null, // handles inbound commands
   onConnect: connection => null, // notify connections
-  onDisconnect: connection => null // notify disconnections
+  onDisconnect: connection => null, // notify disconnections
 }
 
 class Server {
@@ -21,7 +21,7 @@ class Server {
   messageId = 0
   subscriptions = []
   partialConnections = []
-  io
+  wss
 
   /**
    * Holds the commands the client has sent.
@@ -37,11 +37,11 @@ class Server {
    * How many people are connected?
    */
   @computed
-  get connectionCount () {
+  get connectionCount() {
     return length(this.connections)
   }
 
-  constructor (createTransport) {
+  constructor(createTransport) {
     this.send = this.send.bind(this)
   }
 
@@ -51,7 +51,7 @@ class Server {
   /**
    * Set the configuration options.
    */
-  configure (options = {}) {
+  configure(options = {}) {
     // options get merged & validated before getting set
     const newOptions = merge(this.options, options)
     validate(newOptions)
@@ -62,21 +62,21 @@ class Server {
   /**
    * Starts the server
    */
-  start () {
+  start() {
     this.started = true
     const { port, onStart } = this.options
     const { onCommand, onConnect, onDisconnect } = this.options
 
     // start listening
-    this.io = socketIO(port, { pingTimeout: 30000 })
+    this.wss = new WebSocket.Server({ port })
 
     // register events
-    this.io.on('connection', socket => {
+    this.wss.on('connection', socket => {
       // a wild client appears
       const partialConnection = {
         id: socket.id,
-        address: socket.request.connection.remoteAddress,
-        socket
+        address: 'dunno', // socket.request.connection.remoteAddress,
+        socket,
       }
 
       // tuck them away in a "almost connected status"
@@ -89,36 +89,47 @@ class Server {
       socket.on('disconnect', () => {
         onDisconnect(socket.id)
         // remove them from the list partial list
-        this.partialConnections = reject(propEq('id', socket.id), this.partialConnections)
+        this.partialConnections = reject(propEq('id', socket.id), this.partialConnections) as any
 
         // remove them from the main connections list
         const severingConnection = find(propEq('id', socket.id), this.connections)
         if (severingConnection) {
-          this.connections.remove(severingConnection)
+          ;(this.connections as any).remove(severingConnection)
           onDisconnect && onDisconnect(severingConnection)
         }
       })
 
       // when we receive a command from the client
-      socket.on('command', ({ type, important, payload }) => {
+      socket.on('message', incoming => {
+        const message = JSON.parse(incoming)
+        repair(message)
+        const { type, important, payload } = message
         this.messageId++
         const date = new Date()
-        const fullCommand = { type, important, payload, messageId: this.messageId, date }
+        const fullCommand = {
+          type,
+          important,
+          payload,
+          messageId: this.messageId,
+          date,
+        }
 
-        repair(payload)
         // for client intros
         if (type === 'client.intro') {
           // find them in the partial connection list
-          const partialConnection = find(propEq('id', socket.id), this.partialConnections)
+          const partConn = find(propEq('id', socket.id), this.partialConnections) as any
 
           // add their address in
-          fullCommand.payload.address = partialConnection.address
+          fullCommand.payload.address = partConn.address
 
           // remove them from the partial connections list
-          this.partialConnections = reject(propEq('id', socket.id), this.partialConnections)
+          this.partialConnections = reject(propEq('id', socket.id), this.partialConnections) as any
 
           // bestow the payload onto the connection
-          const connection = merge(payload, { id: socket.id, address: partialConnection.address })
+          const connection = merge(payload, {
+            id: socket.id,
+            address: partConn.address,
+          })
 
           // then trigger the connection
           this.connections.push(connection)
@@ -137,7 +148,7 @@ class Server {
 
         // clear
         if (type === 'clear') {
-          this.commands.all.clear()
+          ;(this.commands as any).all.clear()
         } else {
           this.commands.addCommand(fullCommand)
           onCommand(fullCommand)
@@ -157,11 +168,11 @@ class Server {
   /**
    * Stops the server
    */
-  stop () {
+  stop() {
     const { onStop } = this.options
     this.started = false
     forEach(s => s && s.connected && s.disconnect(), pluck('socket', this.connections))
-    this.io.close()
+    this.wss.close()
 
     // trigger the stop message
     onStop && onStop()
@@ -172,44 +183,51 @@ class Server {
   /**
    * Sends a command to the client
    */
-  send (type, payload) {
-    this.io.sockets.emit('command', { type, payload })
+  send(type, payload) {
+    this.wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type, payload }))
+      }
+    })
   }
 
   /**
    * Sends a request to the client for state values.
    */
-  stateValuesRequest (path) {
+  stateValuesRequest(path) {
     this.send('state.values.request', { path })
   }
 
   /**
    * Sends a request to the client for keys for a state object.
    */
-  stateKeysRequest (path) {
+  stateKeysRequest(path) {
     this.send('state.keys.request', { path })
   }
 
   /**
    * Dispatches an action through to the state.
    */
-  stateActionDispatch (action) {
+  stateActionDispatch(action) {
     this.send('state.action.dispatch', { action })
   }
 
   /**
    * Sends a list of subscribed paths to the client for state subscription.
    */
-  stateValuesSendSubscriptions () {
+  stateValuesSendSubscriptions() {
     this.send('state.values.subscribe', { paths: this.subscriptions })
   }
 
   /**
    * Subscribe to a path in the client's state.
    */
-  stateValuesSubscribe (path) {
+  stateValuesSubscribe(path) {
     // prevent duplicates
-    if (contains(path, this.subscriptions)) return
+    if (contains(path, this.subscriptions)) {
+      return
+    }
+
     // subscribe
     this.subscriptions.push(path)
     this.stateValuesSendSubscriptions()
@@ -218,9 +236,12 @@ class Server {
   /**
    * Unsubscribe from this path.
    */
-  stateValuesUnsubscribe (path) {
+  stateValuesUnsubscribe(path) {
     // if it doesn't exist, jet
-    if (!contains(path, this.subscriptions)) return
+    if (!contains(path, this.subscriptions)) {
+      return
+    }
+
     this.subscriptions = without([path], this.subscriptions)
     this.stateValuesSendSubscriptions()
   }
@@ -228,7 +249,7 @@ class Server {
   /**
    * Clears the subscriptions.
    */
-  stateValuesClearSubscriptions () {
+  stateValuesClearSubscriptions() {
     this.subscriptions = []
     this.stateValuesSendSubscriptions()
   }
@@ -236,21 +257,21 @@ class Server {
   /**
    * Asks the client for a copy of the current state.
    */
-  stateBackupRequest () {
+  stateBackupRequest() {
     this.send('state.backup.request', {})
   }
 
   /**
    * Asks the client to substitute this new state.  Good luck!  Hope it is compatible!
    */
-  stateRestoreRequest (state) {
+  stateRestoreRequest(state) {
     this.send('state.restore.request', { state })
   }
 
   /**
    * Sends a request for the client to open the file in editor.
    */
-  openInEditor (details) {
+  openInEditor(details) {
     const { file, lineNumber } = details
     this.send('editor.open', { file, lineNumber })
   }
@@ -260,7 +281,7 @@ export default Server
 
 // convenience factory function
 export const createServer = options => {
-  const server = new Server()
+  const server = new Server(null)
   server.configure(options)
   return server
 }

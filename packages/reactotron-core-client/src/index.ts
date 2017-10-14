@@ -1,4 +1,5 @@
 import R from 'ramda'
+import WebSocket from 'ws'
 import validate from './validate'
 import logger from './plugins/logger'
 import image from './plugins/image'
@@ -9,7 +10,21 @@ import clear from './plugins/clear'
 import serialize from './serialize'
 import { start } from './stopwatch'
 
-export { start } from './stopwatch'
+export interface Options {
+  createSocket?: (path: string) => WebSocket
+  host?: string
+  port?: number
+  name?: string
+  secure?: boolean
+  plugins?: any[] // TODO: Better Type?
+  safeRecursion?: boolean
+  onCommand?: (cmd: string) => void
+  onConnect?: () => void
+  onDisconnect?: () => void
+  userAgent?: string
+  environment?: string
+  reactotronVersion?: string
+}
 
 export const CorePlugins = [
   image(),
@@ -17,11 +32,11 @@ export const CorePlugins = [
   benchmark(),
   stateResponses(),
   apiResponse(),
-  clear()
+  clear(),
 ]
 
-const DEFAULTS = {
-  io: null, // the socket.io function to create a socket
+const DEFAULTS: Options = {
+  createSocket: null, // a function supplied by the upstream libs to create a websocket client
   host: 'localhost', // the server to connect (required)
   port: 9090, // the port to connect (required)
   name: 'reactotron-core-client', // some human-friendly session name
@@ -31,15 +46,10 @@ const DEFAULTS = {
   onCommand: cmd => null, // the function called when we receive a command
   onConnect: () => null, // fires when we connect
   onDisconnect: () => null, // fires when we disconnect
-  socketIoProperties: {
-    reconnection: true,
-    reconnectionDelay: 2000,
-    reconnectionDelayMax: 5000,
-    reconnectionAttempts: 5
-  } // socketIO settings
 }
 
 // these are not for you.
+// TODO: Better Type?
 const isReservedFeature = R.contains(R.__, [
   'options',
   'connected',
@@ -49,19 +59,21 @@ const isReservedFeature = R.contains(R.__, [
   'connect',
   'send',
   'use',
-  'startTimer'
-])
+  'startTimer',
+]) as any
 
 export class Client {
   // the configuration options
-  options = R.merge({}, DEFAULTS)
+  options: Options = R.merge({}, DEFAULTS)
   connected = false
-  socket = null
-  plugins = []
+  socket: WebSocket = null
+  plugins = [] // TODO: Better Type?
+  sendQueue = [] // TODO: Better Type?
+  isReady = false
 
   startTimer = () => start()
 
-  constructor () {
+  constructor() {
     // we will be invoking send from callbacks other than inside this file
     this.send = this.send.bind(this)
   }
@@ -69,7 +81,7 @@ export class Client {
   /**
    * Set the configuration options.
    */
-  configure (options = {}) {
+  configure(options: Options = {}): Client {
     // options get merged & validated before getting set
     const newOptions = R.merge(this.options, options)
     validate(newOptions)
@@ -86,10 +98,10 @@ export class Client {
   /**
    * Connect to the Reactotron server.
    */
-  connect () {
+  connect(): Client {
     this.connected = true
     const {
-      io,
+      createSocket,
       secure,
       host,
       port,
@@ -97,47 +109,63 @@ export class Client {
       userAgent,
       environment,
       reactotronVersion,
-      socketIoProperties
     } = this.options
     const { onCommand, onConnect, onDisconnect } = this.options
 
-    // establish a socket.io connection to the server
+    // establish a connection to the server
     const protocol = secure ? 'wss' : 'ws'
-    const socket = io(`${protocol}://${host}:${port}`, {
-      jsonp: false,
-      transports: ['websocket', 'polling'],
-      ...socketIoProperties
-    })
+    const socket = createSocket(`${protocol}://${host}:${port}`)
 
     // fires when we talk to the server
-    socket.on('connect', () => {
+    const onOpen = () => {
       // fire our optional onConnect handler
       onConnect && onConnect()
 
       // trigger our plugins onConnect
       R.forEach(plugin => plugin.onConnect && plugin.onConnect(), this.plugins)
-
+      this.isReady = true
       // introduce ourselves
       this.send('client.intro', { host, port, name, userAgent, reactotronVersion, environment })
-    })
+
+      // flush the send queue
+      while (!R.isEmpty(this.sendQueue)) {
+        const h = R.head(this.sendQueue)
+        this.sendQueue = R.tail(this.sendQueue)
+        this.socket.send(h)
+      }
+    }
 
     // fires when we disconnect
-    socket.on('disconnect', () => {
+    const onClose = () => {
+      this.isReady = false
       // trigger our disconnect handler
       onDisconnect && onDisconnect()
 
       // as well as the plugin's onDisconnect
       R.forEach(plugin => plugin.onDisconnect && plugin.onDisconnect(), this.plugins)
-    })
+    }
 
     // fires when we receive a command, just forward it off
-    socket.on('command', command => {
+    const onMessage = (data: any) => {
+      const command = JSON.parse(data)
       // trigger our own command handler
       onCommand && onCommand(command)
 
       // trigger our plugins onCommand
       R.forEach(plugin => plugin.onCommand && plugin.onCommand(command), this.plugins)
-    })
+    }
+
+    // this is ws style from require('ws') on node js
+    if (socket.on) {
+      socket.on('open', onOpen)
+      socket.on('close', onClose)
+      socket.on('message', onMessage)
+    } else {
+      // this is a browser
+      socket.onopen = onOpen
+      socket.onclose = onClose
+      socket.onmessage = evt => onMessage(evt.data)
+    }
 
     // assign the socket to the instance
     this.socket = socket
@@ -148,36 +176,39 @@ export class Client {
   /**
    * Sends a command to the server
    */
-  send (type, payload = {}, important = false) {
+  send(type, payload = {}, important = false) {
     // jet if we don't have a socket
-    if (!this.socket) return
+    if (!this.socket) {
+      return
+    }
 
-    // Do a cycle of serialization -> deserialization to ensure
-    // circular deps are weeded out.
-    //
-    // NOTE(steve): socket.io is going away shortly, so there will
-    // be no need to deserialize as we'll be sending text over the
-    // wire.
-    const actualPayload = this.options.safeRecursion ? JSON.parse(serialize(payload)) : payload
-
-    // send this command
-    this.socket.emit('command', {
+    const fullMessage = {
       type,
-      payload: actualPayload,
-      important: !!important
-    })
+      payload,
+      important: !!important,
+    }
+
+    const serializedMessage = serialize(fullMessage)
+
+    if (this.isReady) {
+      // send this command
+      this.socket.send(serializedMessage)
+    } else {
+      // queue it up until we can connect
+      this.sendQueue.push(serializedMessage)
+    }
   }
 
   /**
    * Sends a custom command to the server to displays nicely.
    */
-  display (config = {}) {
-    const { name, value, preview, image, important = false } = config
+  display(config: any = {}) {
+    const { name, value, preview, image: img, important = false } = config
     const payload = {
       name,
       value: value || null,
       preview: preview || null,
-      image: image || null
+      image: img || null,
     }
     this.send('display', payload, important)
   }
@@ -185,38 +216,48 @@ export class Client {
   /**
    * Client libraries can hijack this to report errors.
    */
-  reportError (error) {
-    this.error(error)
+  reportError(error) {
+    (this as any).error(error)
   }
 
   /**
    * Adds a plugin to the system
    */
-  use (pluginCreator) {
+  use(pluginCreator: (client: Client) => any): Client {
     // we're supposed to be given a function
-    if (typeof pluginCreator !== 'function') throw new Error('plugins must be a function')
+    if (typeof pluginCreator !== 'function') {
+      throw new Error('plugins must be a function')
+    }
 
     // execute it immediately passing the send function
     const plugin = pluginCreator.bind(this)(this)
 
     // ensure we get an Object-like creature back
-    if (!R.is(Object, plugin)) throw new Error('plugins must return an object')
+    if (!R.is(Object, plugin)) {
+      throw new Error('plugins must return an object')
+    }
 
     // do we have features to mixin?
     if (plugin.features) {
       // validate
-      if (!R.is(Object, plugin.features)) throw new Error('features must be an object')
+      if (!R.is(Object, plugin.features)) {
+        throw new Error('features must be an object')
+      }
 
       // here's how we're going to inject these in
-      const inject = key => {
+      const inject = (key: string) => {
         // grab the function
         const featureFunction = plugin.features[key]
 
         // only functions may pass
-        if (typeof featureFunction !== 'function') { throw new Error(`feature ${key} is not a function`) }
+        if (typeof featureFunction !== 'function') {
+          throw new Error(`feature ${key} is not a function`)
+        }
 
         // ditch reserved names
-        if (isReservedFeature(key)) throw new Error(`feature ${key} is a reserved name`)
+        if (isReservedFeature(key)) {
+          throw new Error(`feature ${key} is a reserved name`)
+        }
 
         // ok, let's glue it up... and lose all respect from elite JS champions.
         this[key] = featureFunction
@@ -238,7 +279,7 @@ export class Client {
 }
 
 // convenience factory function
-export const createClient = options => {
+export const createClient = (options: Options) => {
   const client = new Client()
   client.configure(options)
   return client

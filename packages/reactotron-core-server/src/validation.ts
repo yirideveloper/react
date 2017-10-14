@@ -15,9 +15,14 @@ const isOnCommandValid = R.allPass([R.complement(R.isNil)])
  * Ensures the options are sane to run this baby.  Throw if not.  These
  * are basically sanity checks.
  */
-export default options => {
+export default (options: { port: number, onCommand: (command: any) => any }) => {
   const { port, onCommand } = options
 
-  if (!isPortValid(port)) throw new Error('invalid port')
-  if (!isOnCommandValid(onCommand)) throw new Error('onCommand is required')
+  if (!isPortValid(port)) {
+    throw new Error('invalid port')
+  }
+
+  if (!isOnCommandValid(onCommand)) {
+    throw new Error('onCommand is required')
+  }
 }
