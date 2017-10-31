@@ -1,6 +1,4 @@
-**/.vscode
-**/android
-**/build
-**/dist
-**/ios
-**/release
+**/release/*
+**/dist/*
+**/build/*
+**/.vscode/*

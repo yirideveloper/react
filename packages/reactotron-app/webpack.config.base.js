@@ -4,13 +4,8 @@ export default {
   module: {
     loaders: [
       {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
         test: /\.jsx?$/,
-        loader: 'babel-loader',
+        loaders: ['babel-loader'],
         exclude: /node_modules/
       },
       {
@@ -19,7 +14,7 @@ export default {
       },
       {
         test: /\.png$/,
-        loader: 'url-loader'
+        loader: 'url'
       }
     ]
   },
@@ -29,12 +24,14 @@ export default {
     libraryTarget: 'commonjs2'
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    mainFields: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
+    extensions: ['', '.js', '.jsx'],
+    packageMains: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
   },
   plugins: [],
   externals: [
     // put your node 3rd party libraries which can't be built with webpack here
     // (mysql, mongodb, and so on..)
+    'socket.io',
+    'socket.io-client'
   ]
 }

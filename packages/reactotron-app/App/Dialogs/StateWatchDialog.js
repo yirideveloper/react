@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import Modal from 'react-modal'
+import { ModalPortal, ModalBackground, ModalDialog } from 'react-modal-dialog'
 import { inject, observer } from 'mobx-react'
 import AppStyles from '../Theme/AppStyles'
 import Colors from '../Theme/Colors'
@@ -18,6 +18,7 @@ const Styles = {
   dialog: {
     borderRadius: 4,
     padding: 4,
+    width: 450,
     backgroundColor: Colors.background,
     color: Colors.foreground
   },
@@ -102,48 +103,48 @@ class StateWatchDialog extends Component {
     session.ui.watchToAdd = e.target.value
   }
 
-  componentDidUpdate() {
+  componentDidUpdate () {
     const field = ReactDOM.findDOMNode(this.field)
 
     field && field.focus()
   }
 
-  render() {
+  render () {
     const { ui } = this.props.session
     if (!ui.showStateWatchDialog) return null
 
     return (
-      <Modal
-        isOpen
-        onRequestClose={ui.closeStateWatchDialog}
-        style={{ content: Styles.dialog, overlay: { zIndex: 5 } }}
-      >
-        <div style={Styles.container}>
-          <div style={Styles.header}>
-            <h1 style={Styles.title}>{DIALOG_TITLE}</h1>
-            <p style={Styles.subtitle}>{INSTRUCTIONS}</p>
-          </div>
-          <div style={Styles.body}>
-            <label style={Styles.fieldLabel}>{FIELD_LABEL}</label>
-            <input
-              placeholder={INPUT_PLACEHOLDER}
-              style={Styles.textField}
-              type='text'
-              ref={node => (this.field = node)}
-              onKeyPress={this.handleKeyPress}
-              onChange={this.handleChange}
-            />
-          </div>
-          <div style={Styles.keystrokes}>
-            <div style={Styles.hotkey}>
-              <span style={Styles.keystroke}>{ESCAPE_KEYSTROKE}</span> {ESCAPE_HINT}
+      <ModalPortal>
+        <ModalBackground onClose={ui.closeStateWatchDialog}>
+          <ModalDialog style={Styles.dialog}>
+            <div style={Styles.container}>
+              <div style={Styles.header}>
+                <h1 style={Styles.title}>{DIALOG_TITLE}</h1>
+                <p style={Styles.subtitle}>{INSTRUCTIONS}</p>
+              </div>
+              <div style={Styles.body}>
+                <label style={Styles.fieldLabel}>{FIELD_LABEL}</label>
+                <input
+                  placeholder={INPUT_PLACEHOLDER}
+                  style={Styles.textField}
+                  type='text'
+                  ref={node => (this.field = node)}
+                  onKeyPress={this.handleKeyPress}
+                  onChange={this.handleChange}
+                />
+              </div>
+              <div style={Styles.keystrokes}>
+                <div style={Styles.hotkey}>
+                  <span style={Styles.keystroke}>{ESCAPE_KEYSTROKE}</span> {ESCAPE_HINT}
+                </div>
+                <div style={Styles.hotkey}>
+                  <span style={Styles.keystroke}>{ENTER_KEYSTROKE}</span> {ENTER_HINT}
+                </div>
+              </div>
             </div>
-            <div style={Styles.hotkey}>
-              <span style={Styles.keystroke}>{ENTER_KEYSTROKE}</span> {ENTER_HINT}
-            </div>
-          </div>
-        </div>
-      </Modal>
+          </ModalDialog>
+        </ModalBackground>
+      </ModalPortal>
     )
   }
 }

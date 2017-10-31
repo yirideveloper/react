@@ -1,11 +1,9 @@
-import { createClient, corePlugins } from '../src/reactotron-core-client'
-import WebSocket from 'ws'
-
-const createSocket = path => new WebSocket(path)
+import { createClient, CorePlugins } from '../src/index'
+import io from 'socket.io-client'
 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 
-const client = createClient({ createSocket })
+const client = createClient({ io })
 
 // possible messages
 const sendDebug = message => client.debug(message)
@@ -83,7 +81,7 @@ client.configure({
     shotgun()
   },
   onDisconnect: () => console.log('disconnected'),
-  plugins: corePlugins
+  plugins: CorePlugins
 })
 
 client.connect()
