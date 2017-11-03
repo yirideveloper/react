@@ -4,12 +4,11 @@ import AppStyles from '../Theme/AppStyles'
 import { inject, observer } from 'mobx-react'
 import IconFilter from 'react-icons/lib/md/filter-list'
 import IconClear from 'react-icons/lib/md/delete-sweep'
-import IconSearch from 'react-icons/lib/md/search'
 
 const TITLE = 'Timeline'
 
 const toolbarButton = {
-  cursor: 'pointer',
+  cursor: 'pointer'
 }
 
 const Styles = {
@@ -18,73 +17,48 @@ const Styles = {
     backgroundColor: Colors.backgroundSubtleLight,
     borderBottom: `1px solid ${Colors.chromeLine}`,
     color: Colors.foregroundDark,
-    boxShadow: `0px 0px 30px ${Colors.glow}`,
+    boxShadow: `0px 0px 30px ${Colors.glow}`
   },
   content: {
     height: 60,
     paddingLeft: 10,
     paddingRight: 10,
     ...AppStyles.Layout.hbox,
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   left: {
     ...AppStyles.Layout.hbox,
-    width: 100,
+    width: 100
   },
   right: {
     ...AppStyles.Layout.hbox,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   center: {
     ...AppStyles.Layout.vbox,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   title: {
     color: Colors.foregroundLight,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   iconSize: 32,
   toolbarClear: {
-    ...toolbarButton,
+    ...toolbarButton
   },
   toolbarFilter: {
     ...toolbarButton,
-    paddingRight: 8,
-  },
-  searchInput: {
-    padding: 10,
-
-    backgroundColor: Colors.backgroundSubtleDark,
-    border: 'none',
-    marginRight: 16,
-    color: Colors.foregroundDark,
-    fontSize: 14,
-  },
-
-  searchContainer: {
-    position: 'relative',
-  },
-
-  searchIconSize: 28,
-  searchIcon: {
-    position: 'absolute',
-    top: 6,
-    right: 20,
-    color: Colors.foregroundDark,
-  },
+    paddingRight: 8
+  }
 }
 
 @inject('session')
 @observer
 class TimelineHeader extends Component {
-  getValue = evt => {
-    this.props.onFilter(evt.target.value)
-  }
-
-  render() {
+  render () {
     const { ui } = this.props.session
 
     return (
@@ -95,13 +69,6 @@ class TimelineHeader extends Component {
             <div style={Styles.title}>{TITLE}</div>
           </div>
           <div style={Styles.right}>
-            <div style={Styles.searchContainer}>
-              <input
-                style={Styles.searchInput}
-                onInput={this.props.onFilter ? this.getValue : undefined}
-              />
-              <IconSearch size={Styles.searchIconSize} style={Styles.searchIcon} />
-            </div>
             <IconFilter
               size={Styles.iconSize}
               style={Styles.toolbarFilter}
