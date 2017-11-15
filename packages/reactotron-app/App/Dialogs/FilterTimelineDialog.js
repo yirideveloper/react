@@ -24,9 +24,7 @@ const GROUPS = [
     items: [
       { value: 'client.intro', text: 'Connection' },
       { value: 'benchmark.report', text: 'Benchmark' },
-      { value: 'api.response', text: 'API' },
-      { value: 'query.preserve', text: 'Preserve Query Store on Clear' },
-      { value: 'query.timeline', text: 'Show Query as a Timeline' }
+      { value: 'api.response', text: 'API' }
     ]
   },
   {
@@ -122,24 +120,7 @@ const Styles = {
     paddingBottom: 2,
     borderBottom: `1px solid ${Colors.highlight}`
   },
-  option: {},
-
-  numberContainer: {
-    position: 'relative'
-  },
-
-  inputStyle: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: Colors.backgroundSubtleDark,
-    color: Colors.foregroundDark,
-    border: 'none',
-    paddingLeft: 10,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingRight: 10
-  }
+  option: {}
 }
 
 const FilterTimelineDialog = inject('session')(
