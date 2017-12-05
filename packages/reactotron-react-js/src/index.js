@@ -1,4 +1,5 @@
 import { createClient } from 'reactotron-core-client'
+import io from 'socket.io-client'
 export trackGlobalErrors from './plugins/track-global-errors'
 
 // ---------------------
@@ -6,7 +7,7 @@ export trackGlobalErrors from './plugins/track-global-errors'
 // ---------------------
 
 var DEFAULTS = {
-  createSocket: path => new WebSocket(path), // eslint-disable-line
+  io,
   host: 'localhost',
   port: 9090,
   name: 'React JS App',
