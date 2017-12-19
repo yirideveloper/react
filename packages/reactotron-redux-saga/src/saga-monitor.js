@@ -114,26 +114,24 @@ export default (reactotron, options) => {
         if (isNil(sourceEffectInfo)) return
 
         let extra = null
-        if (sourceEffectInfo.effect) {
-          switch (sourceEffectInfo.name) {
-            case CALL:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name].args
-              break
+        switch (sourceEffectInfo.name) {
+          case CALL:
+            extra = sourceEffectInfo.effect[sourceEffectInfo.name].args
+            break
 
-            case PUT:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name].action
-              break
+          case PUT:
+            extra = sourceEffectInfo.effect[sourceEffectInfo.name].action
+            break
 
-            // children handle this
-            case RACE:
-              break
+          // children handle this
+          case RACE:
+            break
 
-            // TODO: More of customizations needed here
+          // TODO: More of customizations needed here
 
-            default:
-              extra = sourceEffectInfo.effect[sourceEffectInfo.name]
-              break
-          }
+          default:
+            extra = sourceEffectInfo.effect[sourceEffectInfo.name]
+            break
         }
         // assemble the structure
         children.push({
