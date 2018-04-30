@@ -15,9 +15,11 @@ export default () => reactotron => {
      * @param {object} command The Reactotron command object.
      */
     onCommand: command => {
-      if (command.type !== 'storybook') return
+      if (command.type !== 'custom') return
       // relay this payload on to the emitter
-      emitter.emit('storybook', command.payload)
+      const splitCommand = command.payload.split(':')
+      if (splitCommand[0].toLowerCase() !== 'storybook') return
+      emitter.emit('storybook', splitCommand[1].toLowerCase() === 'true')
     },
 
     features: {

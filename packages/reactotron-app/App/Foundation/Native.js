@@ -65,20 +65,6 @@ const Styles = {
   overlayPreview: {
     maxWidth: '100%',
     maxHeight: '100%'
-  },
-  button: {
-    height: 30,
-    padding: "0 15px",
-    fontSize: 13,
-    marginRight: 4,
-    backgroundColor: Colors.subtleLine,
-    borderRadius: 2,
-    border: `1px solid ${Colors.backgroundSubtleDark}`,
-    cursor: "pointer",
-    color: Colors.foregroundDark,
-  },
-  buttonActive: {
-    color: Colors.bold
   }
 }
 
@@ -349,17 +335,6 @@ class Native extends Component {
       <div style={Styles.container}>
         <NativeHeader />
         <div style={Styles.content}>
-          <div style={Styles.sectionTitle}>Storybook</div>
-          <button
-            style={
-              this.props.session.ui.isStorybookShown
-                ? { ...Styles.button, ...Styles.buttonActive }
-                : Styles.button
-            }
-            onClick={this.props.session.ui.toggleStorybook}
-          >
-            Toggle
-          </button>
           <div style={Styles.sectionTitle}>Overlay Image</div>
           <div style={Styles.backups}>
             <div
