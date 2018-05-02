@@ -6,13 +6,13 @@ rm -rf dist
 rm -rf release
 
 # reinstall deps (still can't get yarn to reliably work)
-yarn
+npm i
 
 # build production bundle
-yarn build
+npm run build
 
 # make apps for all platforms
-yarn package
+npm run package
 
 # sign the mac version
 # requires my certificate on the active login keychain
@@ -40,7 +40,7 @@ cd win32-ia32
 mv Reactotron-win32-ia32 Reactotron
 zip -r Reactotron-win32-ia32.zip Reactotron
 mv Reactotron-win32-ia32.zip ../
-cd ..
+cd ../
 
 # 64 bit windows
 cd win32-x64
@@ -53,6 +53,6 @@ cd ..
 
 # -- still not working right.  doesn't seem to compress properly.
 # cd darwin-x64/Reactotron-darwin-x64
-# zip -r -X Reactotron.zip Reactotron.app
+# zip -r Reactotron.zip Reactotron.app
 # mv Reactotron.zip ../../
 # cd ../..
