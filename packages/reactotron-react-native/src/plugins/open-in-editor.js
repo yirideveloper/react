@@ -1,10 +1,11 @@
+import { merge } from 'ramda'
 
 const DEFAULTS = {
   url: 'http://localhost:8081'
 }
 
 export default (pluginConfig = {}) => reactotron => {
-  const options = Object.assign({}, DEFAULTS, pluginConfig)
+  const options = merge(DEFAULTS, pluginConfig)
 
   return {
     onCommand: command => {

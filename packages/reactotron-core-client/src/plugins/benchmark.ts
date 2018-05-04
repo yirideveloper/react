@@ -1,3 +1,5 @@
+import { length, last } from "ramda"
+
 /**
  * Runs small high-unscientific benchmarks for you.
  */
@@ -8,7 +10,7 @@ export default () => reactotron => {
     const steps = []
     const elapsed = startTimer()
     const step = stepTitle => {
-      const previousTime = steps.length === 0 ? 0 : (steps[steps.length - 1] as any).time
+      const previousTime = length(steps) === 0 ? 0 : (last(steps) as any).time
       const nextTime = elapsed()
       steps.push({ title: stepTitle, time: nextTime, delta: nextTime - previousTime })
     }

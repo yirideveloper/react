@@ -1,3 +1,4 @@
+import { merge, test } from 'ramda'
 import XHRInterceptor from 'react-native/Libraries/Network/XHRInterceptor'
 
 /**
@@ -8,7 +9,7 @@ const DEFAULT_CONTENT_TYPES_RX = /^(image)\/.*$/i
 const DEFAULTS = {}
 
 export default (pluginConfig = {}) => reactotron => {
-  const options = Object.assign({}, DEFAULTS, pluginConfig)
+  const options = merge(DEFAULTS, pluginConfig)
 
   // a RegExp to suppess adding the body cuz it costs a lot to serialize
   const ignoreContentTypes = options.ignoreContentTypes || DEFAULT_CONTENT_TYPES_RX
@@ -26,7 +27,7 @@ export default (pluginConfig = {}) => reactotron => {
    * @param {*} instance - The XMLHTTPRequest instance.
    */
   function onSend (data, xhr) {
-    if (options.ignoreUrls && options.ignoreUrls.test(xhr._url)) {
+    if (options.ignoreUrls && test(options.ignoreUrls, xhr._url)) {
       xhr._skipReactotron = true
       return
     }
@@ -86,7 +87,7 @@ export default (pluginConfig = {}) => reactotron => {
     // can we use the real response?
     const useRealResponse =
       (typeof response === 'string' || typeof response === 'object') &&
-      !ignoreContentTypes.test(contentType || '')
+      !test(ignoreContentTypes, contentType || '')
 
     // prepare the right body to send
     if (useRealResponse) {

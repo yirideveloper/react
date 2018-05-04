@@ -1,3 +1,4 @@
+import { is } from "ramda"
 
 /**
  * Sends API request/response information.
@@ -9,7 +10,7 @@ export default () => reactotron => {
         const ok =
           response &&
           response.status &&
-          typeof response.status === "number" &&
+          is(Number, response.status) &&
           response.status >= 200 &&
           response.status <= 299
         const important = !ok

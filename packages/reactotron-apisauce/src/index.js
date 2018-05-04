@@ -1,3 +1,6 @@
+import { test } from 'ramda'
+import { dotPath } from 'ramdasauce'
+
 /**
  * Don't include the response bodies for images by default.
  */
@@ -11,33 +14,37 @@ export default (options = {}) => reactotron => {
   const ignoreContentTypes = options.ignoreContentTypes || DEFAULT_CONTENT_TYPES_RX
 
   // apisauce uses axios, so let's deconstruct that format
-  const convertResponse = (source = {}) => {
-    const config = source.config || {}
-
+  const convertResponse = source => {
     // the request
+    const url = dotPath('config.url', source)
+    const method = dotPath('config.method', source)
+    const requestData = dotPath('config.data', source)
+    const requestHeaders = dotPath('config.headers', source)
+    const requestParams = dotPath('config.params', source)
     const request = {
-      url: config.url,
-      method: config.method,
-      data: config.data || null,
-      headers: config.headers,
-      params: config.params || null
+      url,
+      method,
+      data: requestData || null,
+      headers: requestHeaders,
+      params: requestParams || null
     }
 
-    // the response
-    const responseHeaders = source.headers || {}
+    // there response
+    const status = dotPath('status', source)
+    const responseHeaders = dotPath('headers', source) || {}
     const contentType = responseHeaders['content-type'] || responseHeaders['Content-Type']
+    const bodyData = dotPath('data', source)
     const useRealBody =
-      (typeof source.data === 'string' || typeof source.data === 'object') &&
-      !ignoreContentTypes.test(contentType || '')
-    const body = useRealBody ? source.data : `~~~ skipped ~~~`
-    const response = {
-      body,
-      status: source.status,
-      headers: responseHeaders
-    }
+      (typeof bodyData === 'string' || typeof bodyData === 'object') &&
+      !test(ignoreContentTypes, contentType || '')
+    const body = useRealBody ? bodyData : `~~~ skipped ~~~`
+    const response = { body, status, headers: responseHeaders }
+
+    // the duration
+    const duration = dotPath('duration', source)
 
     // return all 3
-    return [request, response, source.duration]
+    return [request, response, duration]
   }
   return {
     features: {
