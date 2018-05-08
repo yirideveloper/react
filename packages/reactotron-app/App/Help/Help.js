@@ -1,7 +1,7 @@
 import React from 'react'
 import Colors from '../Theme/Colors'
 import AppStyles from '../Theme/AppStyles'
-import Header from '../Foundation/Header'
+import HelpHeader from './HelpHeader'
 import HelpKeystrokes from './HelpKeystrokes'
 import HelpFeedback from './HelpFeedback'
 
@@ -43,7 +43,7 @@ const Styles = {
 
 const Help = () => (
   <div style={Styles.container}>
-    <Header title="Using Reactotron" />
+    <HelpHeader />
     <div style={Styles.content}>
       <div style={Styles.logoPanel}>
         <img src={logoUrl} style={Styles.logo} />

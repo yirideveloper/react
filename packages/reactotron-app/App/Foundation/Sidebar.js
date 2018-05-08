@@ -37,14 +37,17 @@ class Sidebar extends Component {
     this.handleClickTimeline = () => {
       this.props.session.ui.switchTab("timeline")
     }
-    this.handleClickState = () => {
-      this.props.session.ui.switchTab("state")
+    this.handleClickSubscriptions = () => {
+      this.props.session.ui.switchTab("subscriptions")
     }
     this.handleClickHelp = () => {
       this.props.session.ui.switchTab("help")
     }
     this.handleClickSettings = () => {
       this.props.session.ui.switchTab("settings")
+    }
+    this.handleClickBackups = () => {
+      this.props.session.ui.switchTab("backups")
     }
     this.handleClickNative = () => {
       this.props.session.ui.switchTab("native")
@@ -72,10 +75,16 @@ class Sidebar extends Component {
               onClick={this.handleClickTimeline}
             />
             <SidebarButton
-              text="State"
-              icon="assignment"
-              isActive={ui.tab === "state"}
-              onClick={this.handleClickState}
+              text="State Subscriptions"
+              icon="notifications-none"
+              isActive={ui.tab === "subscriptions"}
+              onClick={this.handleClickSubscriptions}
+            />
+            <SidebarButton
+              text="State Snapshots"
+              icon="import-export"
+              isActive={ui.tab === "backups"}
+              onClick={this.handleClickBackups}
             />
             <SidebarButton
               text="React Native"
