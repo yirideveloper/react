@@ -21,12 +21,12 @@ class RenameStateDialog extends React.Component {
   }
 
   render() {
-    const { stateBackupStore } = this.props.session
+    const { ui } = this.props.session
 
     return (
       <Modal
-        isOpen={stateBackupStore.renameDialogVisible}
-        onRequestClose={() => stateBackupStore.setRenameDialogVisible(false)}
+        isOpen={ui.showRenameStateDialog}
+        onRequestClose={ui.closeRenameStateDialog}
         onAfterOpen={this.onAfterOpenModal}
         style={{
           content: AppStyles.Modal.content,
@@ -45,15 +45,15 @@ class RenameStateDialog extends React.Component {
               style={AppStyles.Modal.textField}
               type="text"
               ref={node => (this.field = node)}
-              defaultValue={stateBackupStore.newBackupName}
-              onChange={e => stateBackupStore.setNewBackupName(e.target.value)}
+              defaultValue={ui.backupStateName}
+              onChange={e => (ui.backupStateName = e.target.value)}
             />
           </div>
           <div style={AppStyles.Modal.keystrokes}>
-            <div style={AppStyles.Modal.hotkey}  onClick={() => stateBackupStore.commitRename() }>
+            <div style={AppStyles.Modal.hotkey}>
               <span style={AppStyles.Modal.keystroke}>{ESCAPE_KEYSTROKE}</span> {ESCAPE_HINT}
             </div>
-            <div style={AppStyles.Modal.hotkey}  onClick={() => stateBackupStore.cancelRename() }>
+            <div style={AppStyles.Modal.hotkey}>
               <span style={AppStyles.Modal.keystroke}>{ENTER_KEYSTROKE}</span> {ENTER_HINT}
             </div>
           </div>

@@ -1,18 +1,20 @@
-import { observer } from "mobx-react"
-import PropTypes from "prop-types"
-import React, { Component } from "react"
-import Command from "../Shared/Command"
-import ObjectTree from "../Shared/ObjectTree"
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import Command from '../Shared/Command'
+import ObjectTree from '../Shared/ObjectTree'
 
-const COMMAND_TITLE = "UNKNOWN"
+const COMMAND_TITLE = 'UNKNOWN'
 
-@observer
 class UnknownCommand extends Component {
   static propTypes = {
-    command: PropTypes.object.isRequired,
+    command: PropTypes.object.isRequired
   }
 
-  render() {
+  shouldComponentUpdate (nextProps) {
+    return this.props.command.id !== nextProps.command.id
+  }
+
+  render () {
     const { command } = this.props
     const { payload, type } = command
 

@@ -1,41 +1,91 @@
-import { webFrame } from "electron"
-import { action, computed, observable } from "mobx"
-import { trim } from "ramda"
+import { computed, observable, action, asMap } from "mobx"
+import Mousetrap from "../Lib/Mousetrap.min.js"
 import { isNilOrEmpty } from "ramdasauce"
 import Keystroke from "../Lib/Keystroke"
-import Mousetrap from "../Lib/Mousetrap.min.js"
+import { trim } from "ramda"
+import { webFrame } from "electron"
 
 /**
  * Handles UI state.
  */
 class UI {
+  /**
+   * Which tab are we on?
+   */
   @observable tab = "timeline"
+
+  /**
+   * Which State sub nav are we on.
+   */
+  @observable stateSubNav = "subscriptions"
+
+  /**
+   * Which native sub nav are we on.
+   */
   @observable nativeSubNav = "image"
+
+  /**
+   * Targets state keys or values from the UI & commands.
+   */
   @observable keysOrValues = "keys"
+
+  // whether or not to show the state find dialog
   @observable showStateFindDialog = false
+
+  // whether or not to show the state dispatch dialog
   @observable showStateDispatchDialog = false
+
+  // whether or not to show the help dialog
   @observable showHelpDialog = false
+
+  // the watch dialog
   @observable showStateWatchDialog = false
+
+  // the rename dialog
+  @observable showRenameStateDialog = false
+
+  // wheter or not to show the timeline filter dialog
   @observable showFilterTimelineDialog = false
+
+  // the current watch to add
   @observable watchToAdd
+
+  // the current name of a backup
+  @observable backupStateName
+
+  // the current action to dispatch
   @observable actionToDispatch
+
+  // show the watch panel?
   @observable showWatchPanel = false
+
+  /** The message we are currently composing to send to the client. */
   @observable customMessage = ""
+
+  // show the send custom message dialog
   @observable showSendCustomDialog = false
+
+  // show the timeline search
   @observable isTimelineSearchVisible = false
+
+  // hide the sidebar
   @observable isSidebarVisible = true
+
+  // If storybook is shown or not
   @observable isStorybookShown = false
+
+  /**
+   * The current search phrase used to narrow down visible commands.
+   */
   @observable searchPhrase = ""
-  zoomLevel = 0
 
   // additional properties that some commands may want... a way to communicate
   // from the command toolbar to the command
   commandProperties = {}
 
-  constructor(server, commandsManager, stateBackupStore) {
+  constructor(server, commandsManager) {
     this.server = server
     this.commandsManager = commandsManager
-    this.stateBackupStore = stateBackupStore
 
     Mousetrap.prototype.stopCallback = () => false
 
@@ -43,7 +93,7 @@ class UI {
     Mousetrap.bind(`${Keystroke.mousetrap}+k`, this.openStateFindDialog)
     Mousetrap.bind(`${Keystroke.mousetrap}+shift+f`, this.openFilterTimelineDialog)
     Mousetrap.bind(`${Keystroke.mousetrap}+d`, this.openStateDispatchDialog)
-    Mousetrap.bind(`${Keystroke.mousetrap}+s`, () => this.stateBackupStore.sendBackup())
+    Mousetrap.bind(`${Keystroke.mousetrap}+s`, this.backupState)
     Mousetrap.bind(`tab`, this.toggleKeysValues)
     Mousetrap.bind(`escape`, this.popState)
     Mousetrap.bind(`enter`, this.submitCurrentForm)
@@ -61,6 +111,8 @@ class UI {
     Mousetrap.bind(`${Keystroke.mousetrap}+=`, this.zoomIn.bind(this))
     Mousetrap.bind(`${Keystroke.mousetrap}+0`, this.resetZoom.bind(this))
   }
+
+  zoomLevel = 0
 
   zoomOut() {
     this.zoomLevel--
@@ -156,6 +208,11 @@ class UI {
   }
 
   @action
+  setStateSubNav = value => {
+    this.stateSubNav = value
+  }
+
+  @action
   setNativeSubNav = value => {
     this.nativeSubNav = value
   }
@@ -167,7 +224,7 @@ class UI {
       this.showStateFindDialog ||
       this.showStateDispatchDialog ||
       this.showFilterTimelineDialog ||
-      this.stateBackupStore.renameDialogVisible ||
+      this.showRenameStateDialog ||
       this.showSendCustomDialog
     )
   }
@@ -186,8 +243,8 @@ class UI {
   submitCurrentForm = () => {
     if (this.showStateWatchDialog) {
       this.submitStateWatch()
-    } else if (this.stateBackupStore.renameDialogVisible) {
-      this.stateBackupStore.commitRename()
+    } else if (this.showRenameStateDialog) {
+      this.submitRenameState()
     } else if (this.showSendCustomDialog) {
       this.submitCurrentMessage()
     }
@@ -205,6 +262,13 @@ class UI {
     this.server.stateValuesSubscribe(this.watchToAdd)
     this.showStateWatchDialog = false
     this.watchToAdd = null
+  }
+
+  @action
+  submitRenameState = () => {
+    this.currentBackupState.payload.name = this.backupStateName
+    this.showRenameStateDialog = false
+    this.backupStateName = null
   }
 
   @action
@@ -265,6 +329,18 @@ class UI {
   @action
   closeStateWatchDialog = () => {
     this.showStateWatchDialog = false
+  }
+
+  @action
+  openRenameStateDialog = backup => {
+    this.showRenameStateDialog = true
+    this.backupStateName = backup.payload.name
+    this.currentBackupState = backup
+  }
+
+  @action
+  closeRenameStateDialog = () => {
+    this.showRenameStateDialog = false
   }
 
   @action
@@ -365,20 +441,33 @@ class UI {
     this.showWatchPanel = !this.showWatchPanel
   }
 
+  // grab a copy of the state for backup purposes
+  @action backupState = () => this.server.send("state.backup.request", {})
+
+  // change the state on the app to this
+  @action restoreState = state => this.server.send("state.restore.request", { state })
+
+  // removes an existing state object
+  @action
+  deleteState = state => {
+    this.commandsManager["state.backup.response"].remove(state)
+  }
+
   getCommandProperty = (messageId, key) => {
     const props = this.commandProperties[messageId]
     if (props) {
       return props.get(key)
     } else {
-      this.commandProperties[messageId] = observable.map({})
+      this.commandProperties[messageId] = observable(asMap({}))
       return this.commandProperties[messageId].get(key, null)
     }
   }
 
   @action
   setCommandProperty = (messageId, key, value) => {
+    // console.log('setting', messageId, key, value, this.commandProperties)
     if (!this.commandProperties[messageId]) {
-      this.commandProperties[messageId] = observable.map({})
+      this.commandProperties[messageId] = observable(asMap({}))
     }
     this.commandProperties[messageId].set(key, value)
   }
