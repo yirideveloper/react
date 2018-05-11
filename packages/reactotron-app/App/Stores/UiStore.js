@@ -10,7 +10,6 @@ import Mousetrap from "../Lib/Mousetrap.min.js"
  */
 class UI {
   @observable tab = "timeline"
-  @observable homeSubNav = "connection"
   @observable stateSubNav = "subscriptions"
   @observable nativeSubNav = "image"
   @observable keysOrValues = "keys"
@@ -19,7 +18,6 @@ class UI {
   @observable showHelpDialog = false
   @observable showStateWatchDialog = false
   @observable showFilterTimelineDialog = false
-  @observable showConnectionSelectionDialog = false
   @observable watchToAdd
   @observable actionToDispatch
   @observable showWatchPanel = false
@@ -158,11 +156,6 @@ class UI {
   }
 
   @action
-  setHomeSubNav = value => {
-    this.homeSubNav = value
-  }
-
-  @action
   setStateSubNav = value => {
     this.stateSubNav = value
   }
@@ -180,8 +173,7 @@ class UI {
       this.showStateDispatchDialog ||
       this.showFilterTimelineDialog ||
       this.stateBackupStore.renameDialogVisible ||
-      this.showSendCustomDialog ||
-      this.showConnectionSelectionDialog
+      this.showSendCustomDialog
     )
   }
 
@@ -323,16 +315,6 @@ class UI {
   @action
   closeSendCustomDialog = () => {
     this.showSendCustomDialog = false
-  }
-
-  @action
-  openConnectionSelectionDialog = () => {
-    this.showConnectionSelectionDialog = true
-  }
-
-  @action
-  closeConnectionSelectionDialog = () => {
-    this.showConnectionSelectionDialog = false
   }
 
   @action

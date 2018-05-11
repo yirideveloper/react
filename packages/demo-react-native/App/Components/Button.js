@@ -1,5 +1,4 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { Component, PropTypes } from 'react'
 import { Text, TouchableOpacity } from 'react-native'
 import Styles from './Styles/ButtonStyles'
 import { merge } from 'ramda'
