@@ -22,7 +22,7 @@ const Styles = {
     boxShadow: `0px 0px 30px ${Colors.glow}`,
   },
   content: {
-    height: 70,
+    height: 60,
     paddingLeft: 10,
     paddingRight: 10,
     ...AppStyles.Layout.hbox,

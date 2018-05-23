@@ -31,8 +31,8 @@ const Styles = {
 }
 
 const SidebarButton = props => {
-  const { icon, isActive, onClick, hideTopBorder, children } = props
-  const Icon = icon && require(`react-icons/lib/md/${icon}`)
+  const { icon, isActive, onClick, hideTopBorder } = props
+  const Icon = require(`react-icons/lib/md/${icon}`)
   const containerStyles = mergeAll([
     Styles.container,
     isActive ? Styles.containerActive : {},
@@ -41,15 +41,14 @@ const SidebarButton = props => {
 
   return (
     <div style={containerStyles} onClick={onClick}>
-      { icon && <Icon size={Styles.iconSize} /> }
-      { children }
+      <Icon size={Styles.iconSize} />
       <div style={Styles.text}>{props.text}</div>
     </div>
   )
 }
 
 SidebarButton.propTypes = {
-  icon: PropTypes.string,
+  icon: PropTypes.string.isRequired,
   text: PropTypes.string,
   isActive: PropTypes.bool.isRequired,
   onClick: PropTypes.func.isRequired,

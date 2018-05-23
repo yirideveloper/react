@@ -1,5 +1,4 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { Component, PropTypes } from 'react'
 import { Animated, Easing, TouchableWithoutFeedback, View, Text, Image } from 'react-native'
 import Styles from './Styles/RepoStyles'
 import Button from './Button'

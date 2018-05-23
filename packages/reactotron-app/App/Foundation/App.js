@@ -7,8 +7,6 @@ import SendCustomDialog from "../Dialogs/SendCustomDialog"
 import StateDispatchDialog from "../Dialogs/StateDispatchDialog"
 import StateKeysAndValuesDialog from "../Dialogs/StateKeysAndValuesDialog"
 import StateWatchDialog from "../Dialogs/StateWatchDialog"
-import ConnectionSelectionDialog from "../Dialogs/ConnectionSelectionDialog"
-import Home from "../Home/Home"
 import Help from "../Help/Help"
 import Native from "../Native/Native"
 import State from "../State/State"
@@ -17,7 +15,6 @@ import AppStyles from "../Theme/AppStyles"
 import Colors from "../Theme/Colors"
 import Timeline from "../Timeline/Timeline"
 import Sidebar from "./Sidebar"
-import StatusBar from "./StatusBar"
 
 const session = new SessionStore()
 
@@ -48,7 +45,6 @@ export default class App extends Component {
 
   render() {
     const { ui } = session
-    const showHome = ui.tab === "home"
     const showTimeline = ui.tab === "timeline"
     const showHelp = ui.tab === "help"
     const showSettings = ui.tab === "settings"
@@ -62,14 +58,11 @@ export default class App extends Component {
             <div style={Styles.body}>
               <Sidebar />
               <div style={Styles.app}>
-                <div style={showHome ? Styles.page : Styles.pageHidden}>
-                  <Home />
-                </div>
                 <div style={showTimeline ? Styles.page : Styles.pageHidden}>
                   <Timeline />
                 </div>
                 <div style={showState ? Styles.page : Styles.pageHidden}>
-                  <State />
+                 <State />
                 </div>
                 <div style={showHelp ? Styles.page : Styles.pageHidden}>
                   <Help />
@@ -82,7 +75,6 @@ export default class App extends Component {
                 </div>
               </div>
             </div>
-            <StatusBar />
           </div>
           <StateKeysAndValuesDialog />
           <StateDispatchDialog />
@@ -90,7 +82,6 @@ export default class App extends Component {
           <RenameStateDialog />
           <FilterTimelineDialog />
           <SendCustomDialog />
-          <ConnectionSelectionDialog />
         </div>
       </Provider>
     )

@@ -104,11 +104,6 @@ declare module "reactotron-react-native" {
     connect(): Reactotron
 
     /**
-     * Closes the active connection.
-     */
-    close()
-
-    /**
      * Use the pack of ReactNative plugins.
      */
     useReactNative(options?: ReactotronUseReactNativeOptions): Reactotron

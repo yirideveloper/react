@@ -11,15 +11,22 @@ const Styles = {
     zIndex: 5,
     maxWidth: 115,
     backgroundColor: Colors.backgroundSubtleDark,
-    // boxShadow: `0px 0px 30px ${Colors.glow}`,
+    boxShadow: `0px 0px 30px ${Colors.glow}`,
     borderRight: `1px solid ${Colors.chromeLine}`,
     WebkitAppRegion: "drag",
     transition: "margin 0.2s ease-out",
   },
-  content: { ...AppStyles.Layout.vbox, height: "100%", alignItems: "center" },
-  tabs: { paddingTop: 20 },
-  spacer: { flex: 1 },
-  logo: { width: 32, height: 32, paddingBottom: 4 },
+  content: {
+    ...AppStyles.Layout.vbox,
+    height: "100vh",
+    alignItems: "center",
+  },
+  tabs: {
+    paddingTop: 20,
+  },
+  spacer: {
+    flex: 1,
+  },
 }
 
 @inject("session")
@@ -27,9 +34,6 @@ const Styles = {
 class Sidebar extends Component {
   constructor(props) {
     super(props)
-    this.handleClickHome = () => {
-      this.props.session.ui.switchTab("home")
-    }
     this.handleClickTimeline = () => {
       this.props.session.ui.switchTab("timeline")
     }
@@ -50,8 +54,6 @@ class Sidebar extends Component {
   render() {
     const { session } = this.props
     const { ui } = session
-    const isHome = ui.tab === "home"
-    const imageFilter = { filter: `grayscale(${ isHome ? 0 : 100 }%)` }
 
     return (
       <div
@@ -63,16 +65,9 @@ class Sidebar extends Component {
         <div style={Styles.content}>
           <div style={Styles.tabs}>
             <SidebarButton
-              text="Home"
-              hideTopBorder
-              isActive={isHome}
-              onClick={this.handleClickHome}
-            >
-              <img src={logoUrl} style={{ ...Styles.logo, ...imageFilter }} />
-            </SidebarButton>
-            <SidebarButton
               text="Timeline"
               icon="reorder"
+              hideTopBorder
               isActive={ui.tab === "timeline"}
               onClick={this.handleClickTimeline}
             />

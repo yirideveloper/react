@@ -75,17 +75,6 @@ class WatchPanel extends Component {
     )
   }
 
-  renderTooManyConnection() {
-    return (
-      <Empty icon="notifications-none" title="Too many connections">
-        <p style={Styles.message}>
-          When you have more then 1 connection you must select which connection to see the values
-          of.
-        </p>
-      </Empty>
-    )
-  }
-
   renderEmpty() {
     return (
       <Empty icon="notifications-none" title="No Subscriptions">
@@ -98,16 +87,13 @@ class WatchPanel extends Component {
   }
 
   render() {
-    const { watches, connections, selectedConnection } = this.props.session
+    const { watches } = this.props.session
     const isEmpty = watches.length === 0
-    const isManyConnections = connections.length > 1 && selectedConnection === null
 
     return (
       <div style={Styles.container}>
-        {isEmpty && !isManyConnections && this.renderEmpty()}
-        {!isEmpty &&
-          !isManyConnections && <div style={Styles.watches}>{map(this.renderWatch, watches)}</div>}
-        {isManyConnections && this.renderTooManyConnection()}
+        {isEmpty && this.renderEmpty()}
+        {!isEmpty && <div style={Styles.watches}>{map(this.renderWatch, watches)}</div>}
       </div>
     )
   }

@@ -9,8 +9,7 @@ import Mousetrap from "../Lib/Mousetrap.min.js"
  * Handles UI state.
  */
 class UI {
-  @observable tab = "home"
-  @observable homeSubNav = "connections"
+  @observable tab = "timeline"
   @observable stateSubNav = "subscriptions"
   @observable nativeSubNav = "image"
   @observable keysOrValues = "keys"
@@ -19,8 +18,6 @@ class UI {
   @observable showHelpDialog = false
   @observable showStateWatchDialog = false
   @observable showFilterTimelineDialog = false
-  @observable showConnectionSelectionDialog = false
-  @observable statusBarExpanded = false
   @observable watchToAdd
   @observable actionToDispatch
   @observable showWatchPanel = false
@@ -53,10 +50,9 @@ class UI {
     Mousetrap.bind(`enter`, this.submitCurrentForm)
     Mousetrap.bind(`${Keystroke.mousetrap}+enter`, this.submitCurrentFormDelicately)
     Mousetrap.bind(`${Keystroke.mousetrap}+n`, this.openStateWatchDialog)
-    Mousetrap.bind(`${Keystroke.mousetrap}+1`, this.switchTab.bind(this, "home"))
-    Mousetrap.bind(`${Keystroke.mousetrap}+2`, this.switchTab.bind(this, "timeline"))
-    Mousetrap.bind(`${Keystroke.mousetrap}+3`, this.switchTab.bind(this, "state"))
-    Mousetrap.bind(`${Keystroke.mousetrap}+4`, this.switchTab.bind(this, "native"))
+    Mousetrap.bind(`${Keystroke.mousetrap}+1`, this.switchTab.bind(this, "timeline"))
+    Mousetrap.bind(`${Keystroke.mousetrap}+2`, this.switchTab.bind(this, "state"))
+    Mousetrap.bind(`${Keystroke.mousetrap}+3`, this.switchTab.bind(this, "native"))
     Mousetrap.bind(`${Keystroke.mousetrap}+?`, this.switchTab.bind(this, "help"))
     Mousetrap.bind(`${Keystroke.mousetrap}+f`, this.showTimelineSearch)
     Mousetrap.bind(`${Keystroke.mousetrap}+.`, this.openSendCustomDialog)
@@ -160,11 +156,6 @@ class UI {
   }
 
   @action
-  setHomeSubNav = value => {
-    this.homeSubNav = value
-  }
-
-  @action
   setStateSubNav = value => {
     this.stateSubNav = value
   }
@@ -182,8 +173,7 @@ class UI {
       this.showStateDispatchDialog ||
       this.showFilterTimelineDialog ||
       this.stateBackupStore.renameDialogVisible ||
-      this.showSendCustomDialog ||
-      this.showConnectionSelectionDialog
+      this.showSendCustomDialog
     )
   }
 
@@ -325,26 +315,6 @@ class UI {
   @action
   closeSendCustomDialog = () => {
     this.showSendCustomDialog = false
-  }
-
-  @action
-  openConnectionSelectionDialog = () => {
-    this.showConnectionSelectionDialog = true
-  }
-
-  @action
-  closeConnectionSelectionDialog = () => {
-    this.showConnectionSelectionDialog = false
-  }
-
-  @action
-  openStatusBar = () => {
-    this.statusBarExpanded = true
-  }
-
-  @action
-  closeStatusBar = () => {
-    this.statusBarExpanded = false
   }
 
   @action

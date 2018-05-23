@@ -1,9 +1,4 @@
 import babel from 'rollup-plugin-babel'
-import replace from "rollup-plugin-replace"
-import filesize from "rollup-plugin-filesize"
-import uglify from 'rollup-plugin-uglify'
-
-const reactotronReactNativeVersion = require("./package.json").version
 
 export default {
   entry: 'src/index.js',
@@ -14,12 +9,7 @@ export default {
       runtimeHelpers: true,
       presets: ['es2015-rollup', 'stage-1'],
       plugins: ['babel-plugin-transform-react-jsx']
-    }),
-    replace({
-      REACTOTRON_REACT_NATIVE_VERSION: reactotronReactNativeVersion,
-    }),
-    uglify(),
-    filesize(),
+    })
   ],
   dest: 'dist/index.js',
   exports: 'named',
