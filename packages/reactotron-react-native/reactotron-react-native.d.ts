@@ -37,8 +37,8 @@ declare module "reactotron-react-native" {
   }
 
   export interface ReactotronUseReactNativeNetworking {
-    ignoreContentTypes?: RegExp
-    ignoreUrls?: RegExp
+    ignoreContentTypes?: RegExpConstructor
+    ignoreUrls?: RegExpConstructor
   }
 
   export interface ReactotronUseReactNativeEditor {
