@@ -338,11 +338,7 @@ class UI {
 
   @action
   reset = () => {
-    const selectedConnection = this.getSelectedConnection()
-
-    if (!selectedConnection) return
-
-    this.commandsManager.clearClientsCommands(selectedConnection.clientId)
+    this.commandsManager.all.clear()
   }
 
   @action

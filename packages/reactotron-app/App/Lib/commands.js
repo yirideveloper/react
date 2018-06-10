@@ -1,6 +1,4 @@
 import { action, observable } from "mobx"
-import { pipe, reject } from "ramda"
-import { dotPath } from "ramdasauce"
 
 export const MAX_COMMANDS = 500
 
@@ -41,20 +39,6 @@ class Commands {
    */
   addCommand(command) {
     this.buffer.push(command)
-  }
-
-  /**
-   * Clear commands for a clientId
-   */
-  clearClientsCommands(clientId) {
-    debugger
-    const newCommands = pipe(
-      dotPath("all"),
-      reject(c => c.clientId === clientId)
-    )(this)
-
-    this.all.clear()
-    this.all.push(...newCommands)
   }
 }
 
