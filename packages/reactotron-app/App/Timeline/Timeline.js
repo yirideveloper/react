@@ -1,5 +1,5 @@
 import { inject, observer } from "mobx-react"
-import { addIndex, identity, isNil, map, reverse } from "ramda"
+import { addIndex, isNil, map } from "ramda"
 import React, { Component } from "react"
 import getCommandComponent from "../Commands"
 import Empty from "../Shared/EmptyState"
@@ -93,16 +93,15 @@ class Timeline extends Component {
 
   render() {
     const { session } = this.props
-    const { commands, ui } = session
+    const { commands } = session
     const isEmpty = commands.length === 0
-    const reverseIf = ui.isTimelineOrderReversed ? reverse : identity
-    
+
     return (
       <div style={Styles.container}>
         <TimelineHeader onFilter={this.onFilter} />
         {isEmpty && this.renderEmpty()}
         <div style={Styles.commands} ref="commands">
-          {reverseIf(mapIndexed(this.renderItem, commands))}
+          {mapIndexed(this.renderItem, commands)}
         </div>
       </div>
     )

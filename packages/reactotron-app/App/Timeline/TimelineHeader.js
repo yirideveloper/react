@@ -4,7 +4,6 @@ import React, { Component } from "react"
 import IconClear from "react-icons/lib/md/delete-sweep"
 import IconFilter from "react-icons/lib/md/filter-list"
 import IconSearch from "react-icons/lib/md/search"
-import IconReverseOrder from "react-icons/lib/md/swap-vert"
 import AppStyles from "../Theme/AppStyles"
 import Colors from "../Theme/Colors"
 
@@ -56,8 +55,6 @@ const Styles = {
   searchIconSize: 28,
   searchIcon: { paddingRight: 7, cursor: "pointer" },
   searchIconEnabled: { color: "white" },
-  reverseOrderSize: 28,
-  reverseOrderIcon: { paddingRight: 7, cursor: "pointer" },
 }
 
 @inject("session")
@@ -132,11 +129,6 @@ class TimelineHeader extends Component {
               size={Styles.iconSize}
               style={Styles.toolbarFilter}
               onClick={ui.openFilterTimelineDialog}
-            />
-            <IconReverseOrder
-              size={Styles.reverseOrderSize}
-              style={Styles.reverseOrderIcon}
-              onClick={ui.toggleTimelineOrder}
             />
             <IconClear size={Styles.iconSize} style={Styles.toolbarClear} onClick={ui.reset} />
           </div>

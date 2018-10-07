@@ -26,7 +26,6 @@ class UI {
   @observable customMessage = ""
   @observable showSendCustomDialog = false
   @observable isTimelineSearchVisible = false
-  @observable isTimelineOrderReversed = false
   @observable isSidebarVisible = true
   @observable isStorybookShown = false
   @observable searchPhrase = ""
@@ -134,11 +133,6 @@ class UI {
     } else {
       this.showTimelineSearch()
     }
-  }
-
-  @action
-  toggleTimelineOrder = () => {
-    this.isTimelineOrderReversed = !this.isTimelineOrderReversed
   }
 
   @action
