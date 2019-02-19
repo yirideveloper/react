@@ -107,8 +107,8 @@ export default class MenuBuilder {
         },
         {
           label: "Toggle Side Menu",
-          click: () => {
-            this.mainWindow.webContents.send("toggle-side-menu")
+          click() {
+            mainWindow.webContents.send("toggle-side-menu")
           },
         },
       ],
