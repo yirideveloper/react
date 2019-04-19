@@ -1,7 +1,7 @@
 {
   "name": "reactotron-app",
   "productName": "Reactotron",
-  "version": "2.11.2-beta.1",
+  "version": "2.11.1",
   "description": "Reactotron desktop mode engage!",
   "author": {
     "name": "Infinite Red",
@@ -59,7 +59,7 @@
     "react-base16-styling": "^0.6.0",
     "react-dom": "^16.3.2",
     "react-hot-loader": "^4.3.12",
-    "react-icons": "^3.0.0",
+    "react-icons": "^2.2.7",
     "react-json-tree": "^0.11.0",
     "react-modal": "^3.4.4",
     "react-tap-event-plugin": "^3.0.2",
@@ -72,7 +72,7 @@
   "devDependencies": {
     "@semantic-release/exec": "3.4.0-beta.2",
     "@semantic-release/git": "7.1.0-beta.3",
-    "@types/node": "8.10.45",
+    "@types/node": "8.10.46",
     "@types/ws": "6.0.1",
     "asar": "1.0.0",
     "babel-core": "6.26.3",

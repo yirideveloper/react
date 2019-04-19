@@ -2,11 +2,9 @@ import { inject, observer } from "mobx-react"
 import PropTypes from "prop-types"
 import { map } from "ramda"
 import React, { Component } from "react"
-import {
-  MdDone as IconStatusResolved,
-  MdEject as IconStatusCancelled,
-  MdError as IconStatusRejected,
-} from "react-icons/md"
+import IconStatusResolved from "react-icons/lib/md/done"
+import IconStatusCancelled from "react-icons/lib/md/eject"
+import IconStatusRejected from "react-icons/lib/md/error"
 import Command from "../Shared/Command"
 import Content from "../Shared/Content"
 import AppStyles from "../Theme/AppStyles"

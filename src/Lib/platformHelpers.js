@@ -1,12 +1,10 @@
-import {
-  FaQuestion as IconDefault,
-  FaApple as IconPhoneApple,
-  FaAndroid as IconPhoneAndroid,
-  FaFirefox as IconBrowserFirefox,
-  FaSafari as IconBrowserSafari,
-  FaEdge as IconBrowserEdge,
-  FaChrome as IconBrowserChrome
-} from "react-icons/fa"
+import IconDefault from "react-icons/lib/fa/question"
+import IconPhoneApple from "react-icons/lib/fa/apple"
+import IconPhoneAndroid from "react-icons/lib/fa/android"
+import IconBrowserFirefox from "react-icons/lib/fa/firefox"
+import IconBrowserSafari from "react-icons/lib/fa/safari"
+import IconBrowserEdge from "react-icons/lib/fa/edge"
+import IconBrowserChrome from "react-icons/lib/fa/chrome"
 
 export function getPlatformName(connection) {
   switch (connection.platform) {

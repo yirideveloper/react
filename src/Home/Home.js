@@ -1,11 +1,8 @@
 import { inject, observer } from "mobx-react"
 import React, { Component } from "react"
-import {
-  MdAdd as IconAdd,
-  MdFileDownload as IconAddBackup,
-  MdDeleteForever as IconClear,
-  MdPeople,
-} from "react-icons/md"
+import IconAdd from "react-icons/lib/md/add"
+import IconAddBackup from "react-icons/lib/md/file-download"
+import IconClear from "react-icons/lib/md/delete-forever"
 import Tabs from "../Foundation/Tabs"
 import AppStyles from "../Theme/AppStyles"
 import Connections from "./Connections"
@@ -35,7 +32,7 @@ class Home extends Component {
 
     return (
       <Tabs selectedTab={ui.homeSubNav} onSwitchTab={ui.setHomeSubNav}>
-        <Tabs.Tab name="connections" text="Connections" icon={MdPeople}>
+        <Tabs.Tab name="connections" text="Connections" icon="people">
           <Connections />
         </Tabs.Tab>
       </Tabs>

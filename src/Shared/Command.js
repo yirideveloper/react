@@ -1,15 +1,14 @@
 import { observer } from "mobx-react"
 import PropTypes from "prop-types"
 import React, { Component } from "react"
-import {
-  MdLabel as DisplayIcon,
-  MdExpandMore as IconOpen,
-  MdChevronRight as IconClosed
-} from "react-icons/md"
+import DisplayIcon from "react-icons/lib/md/label"
 import Timestamp from "../Shared/Timestamp"
 import AppStyles from "../Theme/AppStyles"
 import Colors from "../Theme/Colors"
 import CommandToolbar from "./CommandToolbar"
+
+const IconOpen = require("react-icons/lib/md/expand-more")
+const IconClosed = require("react-icons/lib/md/chevron-right")
 
 const Styles = {
   container: {

@@ -3,7 +3,6 @@ import React, { Component } from "react"
 import Empty from "../Shared/EmptyState"
 import AppStyles from "../Theme/AppStyles"
 import BackupItem from "./BackupItem"
-import { MdImportExport } from "react-icons/md";
 
 const Styles = {
   container: {
@@ -29,7 +28,7 @@ class Backups extends Component {
 
   renderEmpty() {
     return (
-      <Empty icon={MdImportExport} title="No Snapshots">
+      <Empty icon="import-export" title="No Snapshots">
         <p>
           To take a snapshot of your current redux or mobx-state-tree store, press the Download
           button in the top right corner of this window.

@@ -1,14 +1,8 @@
 import { inject, observer } from "mobx-react"
 import React, { Component } from "react"
-import {
-  MdAdd as IconAdd,
-  MdDeleteSweep as IconClear,
-  MdFileDownload as IconAddBackup,
-  MdNotificationsNone,
-  MdImportExport,
-  MdCallReceived,
-  MdFileDownload
-} from 'react-icons/md'
+import IconAdd from "react-icons/lib/md/add"
+import IconClear from "react-icons/lib/md/delete-sweep"
+import IconAddBackup from "react-icons/lib/md/file-download"
 import Tabs from "../Foundation/Tabs"
 import AppStyles from "../Theme/AppStyles"
 import Backups from "./Backups"
@@ -71,7 +65,7 @@ class State extends Component {
         <Tabs.Tab
           name="subscriptions"
           text="Subscriptions"
-          icon={MdNotificationsNone}
+          icon="notifications-none"
           renderActions={this.renderSubscriptionActions}
         >
           <Subscriptions />
@@ -79,18 +73,18 @@ class State extends Component {
         <Tabs.Tab
           name="backups"
           text="Snapshots"
-          icon={MdImportExport}
+          icon="import-export"
           renderActions={() => (
             <div style={Styles.toolbarContainer}>
               <Button
-                icon={MdCallReceived}
+                icon="call-received"
                 onClick={() => stateBackupStore.exportAllBackups()}
                 tip="Copy All Backups to Clipboard"
                 size={Styles.iconSize}
                 style={Styles.toolbarAdd}
               />
               <Button
-                icon={MdFileDownload}
+                icon="file-download"
                 onClick={() => stateBackupStore.sendBackup()}
                 tip="Add Backup"
                 size={Styles.iconSize}
