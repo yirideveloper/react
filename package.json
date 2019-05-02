@@ -1,7 +1,7 @@
 {
   "name": "reactotron-app",
   "productName": "Reactotron",
-  "version": "2.13.2",
+  "version": "2.13.1",
   "description": "Reactotron desktop mode engage!",
   "author": {
     "name": "Infinite Red",
@@ -39,6 +39,8 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
+    "@types/react": "^16.8.15",
+    "@types/react-dom": "^16.8.4",
     "color": "^3.0.0",
     "core-js": "2",
     "css-modules-require-hook": "^4.2.2",
