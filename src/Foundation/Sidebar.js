@@ -3,8 +3,12 @@ import AppStyles from "../Theme/AppStyles"
 import Colors from "../Theme/Colors"
 import SidebarButton from "./SidebarButton"
 import { inject, observer } from "mobx-react"
-import { MdReorder, MdAssignment, MdPhoneIphone, MdLiveHelp } from "react-icons/md"
-import { FaMagic } from "react-icons/fa"
+import {
+  MdReorder,
+  MdAssignment,
+  MdPhoneIphone,
+  MdLiveHelp,
+} from "react-icons/md"
 
 const logoUrl = require("../Theme/Reactotron-128.png")
 
@@ -43,9 +47,6 @@ class Sidebar extends Component {
     }
     this.handleClickNative = () => {
       this.props.session.ui.switchTab("native")
-    }
-    this.handleClickCustomCommands = () => {
-      this.props.session.ui.switchTab("customCommands")
     }
   }
 
@@ -91,12 +92,6 @@ class Sidebar extends Component {
               icon={MdPhoneIphone}
               isActive={ui.tab === "native"}
               onClick={this.handleClickNative}
-            />
-            <SidebarButton
-              text="Custom Commands"
-              icon={FaMagic}
-              isActive={ui.tab === "customCommands"}
-              onClick={this.handleClickCustomCommands}
             />
           </div>
           <div style={Styles.spacer} />
