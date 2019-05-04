@@ -50,6 +50,7 @@ const Styles = {
   },
   displayIcon: {
     marginRight: 4,
+    marginBottom: 4,
   },
   displayIconSize: 16,
   preview: {
